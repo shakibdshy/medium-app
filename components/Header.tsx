@@ -5,7 +5,7 @@ import React from 'react'
 function Header() {
     return (
         <>
-            <header className='container mx-auto flex justify-between space-x-5 p-5'>
+            <header className='container mx-auto flex justify-between space-x-5 px-5 py-2'>
                 <div className='flex items-center space-x-5'>
                     <Link href="/">
                         <a className='w-44 object-contain'>
