@@ -6,14 +6,14 @@ export interface Post {
         name: string;
         image: string;
     };
+    short: string;
     mainImage: {
         assets: {
             url: string;
-        }
+        };
     };
     slug: {
         current: string;
     }
     body: [object];
-
 }
