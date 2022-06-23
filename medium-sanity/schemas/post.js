@@ -43,10 +43,15 @@ export default {
       type: 'datetime',
     },
     {
+      name: 'short',
+      title: 'Short Content',
+      type: 'string',
+    },
+    {
       name: 'body',
       title: 'Body',
       type: 'blockContent',
-    },
+    },    
   ],
 
   preview: {
