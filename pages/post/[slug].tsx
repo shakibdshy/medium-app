@@ -1,17 +1,43 @@
 import { GetStaticProps } from 'next';
 import Image from 'next/image';
 import Head from 'next/head';
-import React from 'react'
+import React, { useState } from 'react'
 import { client, urlFor } from '../../lib/client';
 import { Post } from '../../types/typings';
 import PortableText from 'react-portable-text';
+import { Button } from "@material-tailwind/react";
+import { useForm, SubmitHandler } from "react-hook-form";
 
+interface FormInput {
+    _id: string;
+    name: string;
+    email: string;
+    comment: string;
+}
 interface Props {
     post: Post;
 }
 
 function Post({ post }: Props) {
-    // console.log(post);
+    console.log(post);
+    
+    const [submitted, setSubmitted] = useState(false);
+    const { register, handleSubmit, formState: { errors } } = useForm<FormInput>();
+
+    const onSubmit: SubmitHandler<FormInput> = (data) => {
+        fetch('/api/createComment', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        })
+            .then(() => {
+                setSubmitted(true);
+            })
+            .catch((err) => {
+                setSubmitted(false);
+                console.log(err);
+            });
+    };
+
     return (
         <>
             <Head>
@@ -27,7 +53,6 @@ function Post({ post }: Props) {
                         <Image src={urlFor(post.author.image).url()!} width={40} height={40} className='rounded-full object-cover' />
                         <span>Blog Post By {post.author.name} - {post.publishedAt.slice(0, 10)}</span>
                     </div>
-
                     <div className='post-content pt-8'>
                         <PortableText
                             content={post.body}
@@ -43,12 +68,12 @@ function Post({ post }: Props) {
                                 h3: (props: any) => {
                                     <h3 className='text-lg font-bold' {...props} />
                                 },
-                                li: ({children}: any) => {
+                                li: ({ children }: any) => {
                                     <li className='ml-4 list-disc'>
                                         {children}
                                     </li>
                                 },
-                                link: ({href, children}: any) => {
+                                link: ({ href, children }: any) => {
                                     <a href={href} className='text-blue-500 hover:underline'>
                                         {children}
                                     </a>
@@ -56,6 +81,44 @@ function Post({ post }: Props) {
                             }}
                         />
                     </div>
+                    <hr className='max-w-lg my-5 mx-auto border border-yellow-500' />
+                    <div className='my-8'>
+                        <p className='text-yellow-700'>Enjoyed this article?</p>
+                        <h3 className='text-4xl font-bold font-serif'>Leave a Comment below!</h3>
+                    </div>
+                    {
+                        submitted ? (
+                            <div className='flex flex-col py-10 px-5 my-10 bg-yellow-800 text-white'>
+                                <h1 className='text-2xl font-bold font-serif'>Thank you for submitting your comment!</h1>
+                                <p>Once it has been approved, it will appear below!</p>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleSubmit(onSubmit)} className='grid grid-cols-1 gap-6 mb-10'>
+                                <div>
+                                    <label htmlFor="name" className='text-gray-700'>Name</label>
+                                    <input {...register("name", { required: true })} id="name" type="text" placeholder="Your Name" className='mt-1 block w-full rounded-md bg-grey-100 border-transparent shadow focus:border-gray-500 focus:bg-white focus:ring-0' />
+                                </div>
+                                {errors.name && (
+                                    <div className="text-red-500 text-sm font-bold">The Name Field is required</div>
+                                )}
+                                <div>
+                                    <label htmlFor="email">Email</label>
+                                    <input {...register("email", { required: true })} id="email" type="email" placeholder="email@example.com" className='mt-1 block w-full rounded-md bg-grey-100 shadow border-transparent focus:border-gray-500 focus:bg-white focus:ring-0' />
+                                </div>
+                                {errors.email && (
+                                    <div className="text-red-500 text-sm font-bold">The Email Field is required</div>
+                                )}
+                                <div>
+                                    <label htmlFor="massage">Comment</label>
+                                        <textarea {...register("comment", { required: true })} name="comment" id="comment" placeholder='Massage' className='form-textarea mt-1 block w-full rounded-md bg-grey-100 border-transparent shadow focus:border-gray-500 focus:bg-white focus:ring-0'></textarea>
+                                </div>
+                                {errors.comment && (
+                                    <div className="text-red-500 text-sm font-bold">The Comment Field is required</div>
+                                )}
+                                <Button type='submit' color="amber" className='text-lg font-serif'>Submit</Button>
+                            </form>
+                        )
+                    }
                 </div>
             </section>
         </>
@@ -96,6 +159,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         name, 
         image
         },
+        'comments': *[
+            _type == "comment" &&
+            post._ref == ^._id &&
+            approved == true
+        ],
         categories,
         body,
         publishedAt
