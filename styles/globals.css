@@ -1,3 +1,6 @@
 @tailwind base;
 @tailwind components;
+.post-content figure{
+    @apply my-5;
+}
 @tailwind utilities;

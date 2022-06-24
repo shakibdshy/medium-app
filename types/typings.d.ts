@@ -7,6 +7,7 @@ export interface Post {
         image: string;
     };
     short: string;
+    publishedAt: string;
     mainImage: {
         assets: {
             url: string;

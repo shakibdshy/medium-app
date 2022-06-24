@@ -37,7 +37,8 @@ export const getServerSideProps = async () => {
   image
 },
 categories,
-body
+body,
+publishedAt
 }`;
   const posts = await client.fetch(query);
 
